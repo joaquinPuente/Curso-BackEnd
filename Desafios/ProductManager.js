@@ -1,4 +1,4 @@
-// Primer desafio ntregable
+// Primer desafio entregable
 
 class ProductManager {
  
