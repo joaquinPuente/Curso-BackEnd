@@ -21,3 +21,4 @@ addMessage(mensaje3)
 const arrayAnidado = [1,4,12,52,-1212,0,[21,56,7,12],90,92,[127,122]]
 const result = arrayAnidado.flat()
 console.log(result)
+

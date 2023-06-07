@@ -11,4 +11,8 @@ const nuevosValores2 = valores.map( (numero,idx) => {
 
 console.log(nuevosValores)
 
+const nombres = [ 'Valentin', 'Carolina', 'Agustin', 'Ezequiel', 'Ayelen']
 
+if (nombres.includes('carolina')){
+    
+}
