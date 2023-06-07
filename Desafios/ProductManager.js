@@ -8,8 +8,7 @@ class ProductManager {
     }
 
     getProducts() {
-        const misProductos = this.products.map((product) => {return product;});
-        return misProductos;
+        return this.products;
     }
 
     addProducts = (title, description, price, thumbnail, code, stock) => {
