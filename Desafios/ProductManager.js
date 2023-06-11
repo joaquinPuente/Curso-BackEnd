@@ -1,55 +1,126 @@
-// Primer desafio entregable
+// Segundo desafio entregable
+const fs = require('fs')
 
 class ProductManager {
  
-    constructor () {
-        this.products = [];
+    constructor (filename) {
+        this.filename = filename;
+        this.format = 'utf-8';
         this.ultID = 0;
+        this.path = './product.json'
     }
-
-    getProducts() {
-        return this.products;
-    }
-
-    addProducts = (title, description, price, thumbnail, code, stock) => {
-        if (this.products.some((product) => product.code === code)) {
-          console.log(`El código del producto ${title} ya está registrado. No es posible agregarlo, por favor ingresar otro código.`);
-        } 
-        else if (title && description && price && thumbnail && code && stock) {
-          const productID = this.createID();
-          const product = { id: productID, title, description, price, thumbnail, code, stock };
-          this.products.push(product);
-          console.log(`El producto ${title} se agregó correctamente.`);
-        } 
-        else {
-          console.log(`Faltan datos por completar para poder agregar el producto ${title}.`);
-        }
-      };
-      
 
     createID () {
         this.ultID++;
         return this.ultID;
     }
 
-    getProductsByID(id) {
-        for(const productID of this.products ){
-            if(productID.id == id){return productID}
-            else{return console.log("no se encontro id")}
-        }
+    addProducts = async (title, description, price, thumbnail, code, stock) => {
+        const productID = this.createID();
+        const product = { id:productID ,title, description, price, thumbnail, code, stock}
+        const list = await this.getProducts(); //se obtiene la lista de productos
 
+        list.push(product); //se pushea el nuevo usuario a la lista de productos
+
+        await fs.promises.writeFile(this.filename, JSON.stringify(list)); //se escribe o sobreescribe el archivo existente
+    };
+
+
+    
+    getProducts = async () => {
+    try {
+      //Leer el archivo
+      const data = await fs.promises.readFile(this.filename, this.format);
+      const dataObj = JSON.parse(data);
+
+      return dataObj;
+    } 
+    catch (err) {
+      //Sino existe el archivo
+      console.log(`Error: ${err}`);
+      return [];
     }
+    };
+
+    getProductsByID = async (id) => {
+        try {
+            const data = await fs.promises.readFile(this.filename, this.format);
+            const products = JSON.parse(data);
+    
+            for (const product of products) {
+                if (product.id === id) {
+                    return product;
+                }
+            }
+    
+            console.log("ID no encontrado");
+            return null;
+        } 
+        catch (err) {
+            console.log(`Error: ${err}`);
+            return null;
+        }
+    };
+
+    updateProduct = async (id, title, description, price, thumbnail, code, stock ) => {
+        try {
+            const products = await this.getProducts();
+    
+            // Buscar el producto por su ID
+            const index = products.findIndex(product => product.id === id);
+    
+            if (index !== -1) {
+                // Actualizar las propiedades del producto
+                products[index] = {...products[index],...{title, description, price, thumbnail, code, stock}};
+    
+                // Guardar la lista de productos actualizada en el archivo
+                await fs.promises.writeFile(this.filename, JSON.stringify(products));
+    
+                console.log('Producto actualizado exitosamente.');
+            } else {
+                console.log('ID de producto no encontrado.');
+            }
+        } 
+        catch (err) {
+            console.log(`Error: ${err}`);
+        }
+    };
+
+    deleteProductByID = async (id) => {
+        try {
+            const products = await this.getProducts();
+    
+            // Buscar el producto por su ID
+            const index = products.findIndex(product => product.id === id);
+    
+            if (index !== -1) {
+                // Eliminar el producto de la lista
+                products.splice(index, 1);
+    
+                // Guardar la lista de productos actualizada en el archivo
+                await fs.promises.writeFile(this.filename, JSON.stringify(products));
+                console.log(`Producto con ${id} fue eliminado exitosamente.`);
+            } else {
+                console.log('ID de producto no encontrado.');
+            }
+        } catch (err) {
+            console.log(`Error: ${err}`);
+        }
+    };
 
 }
 
+run = async() => {
+    const products = new ProductManager("./product.json")
+    await products.addProducts("producto prueba","Este es un producto prueba",200,"Sin imagen","abc123",25)
+    await products.addProducts("producto prueba2","Este es un producto prueba",200,"Sin imagen","abc123",25)
+    await products.addProducts("producto prueba3","Este es un producto prueba",200,"Sin imagen","abc123",25)
+    
+    console.log(await products.getProducts());
+    console.log("id buscado:  ",await products.getProductsByID(3)) 
+    console.log('updateProduct', await products.updateProduct(3, 'Nuevo título','Nueva descripción',300,'nueva-imagen.jpg','new123',50))
+    console.log('borrar obj por id ', await products.deleteProductByID(1))
+    console.log(await products.getProducts());
+};
 
-const productos = new ProductManager()
-productos.addProducts("producto prueba","Este es un producto prueba",200,"Sin imagen","abc123",25) //funciona addProducts
-productos.addProducts("producto prueba2","Este es un producto prueba2",300,"Sin imagen","abc123",30) // funciona el condicional de codigo repetido
-productos.addProducts("producto prueba3","Este es un producto prueba3",400,"Sin imagen") //funciona condicional de campos incompletos
-productos.addProducts("producto prueba4","Este es un producto prueba4",200,"Sin imagen","abc124",44) //funciona addProducts
-
-console.log("--------------------------------------------------")
-console.log("Traer array de productos:    ", productos.getProducts()) //funciona getProducts
-console.log("--------------------------------------------------")
-console.log("Atraer producto por ID:    ", productos.getProductsByID(1))
+run();
