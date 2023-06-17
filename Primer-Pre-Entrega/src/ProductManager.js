@@ -44,23 +44,23 @@ class ProductManager {
 
     getProductsByID = async (id) => {
         try {
-            const data = await fs.promises.readFile(this.filename, this.format);
-            const products = JSON.parse(data);
-    
-            for (const product of products) {
-                if (product.id === id) {
-                    return product;
-                }
-            }
-    
+          const data = await fs.promises.readFile(this.filename, this.format);
+          const products = JSON.parse(data);
+      
+          const product = products.find((product) => product.id === id);
+      
+          if (product) {
+            return product;
+          } else {
             console.log("ID no encontrado");
             return null;
-        } 
-        catch (err) {
-            console.log(`Error: ${err}`);
-            return null;
+          }
+        } catch (err) {
+          console.log(`Error: ${err}`);
+          return null;
         }
-    };
+      };
+      
 
     updateProduct = async (id, title, description, price, thumbnail, code, stock ) => {
         try {
@@ -109,18 +109,4 @@ class ProductManager {
     };
 
 }
-
-run = async() => {
-    const products = new ProductManager("./product.json")
-    await products.addProducts("producto prueba","Este es un producto prueba",200,"Sin imagen","abc123",25)
-    await products.addProducts("producto prueba2","Este es un producto prueba",200,"Sin imagen","abc123",25)
-    await products.addProducts("producto prueba3","Este es un producto prueba",200,"Sin imagen","abc123",25)
-    
-    console.log(await products.getProducts());
-    console.log("id buscado:  ",await products.getProductsByID(3)) 
-    console.log('updateProduct', await products.updateProduct(3, 'Nuevo título','Nueva descripción',300,'nueva-imagen.jpg','new123',50))
-    console.log('borrar obj por id ', await products.deleteProductByID(1))
-    console.log(await products.getProducts());
-};
-
-//run();
+module.exports = { ProductManager };
