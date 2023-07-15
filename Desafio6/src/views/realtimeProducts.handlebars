@@ -1,0 +1,101 @@
+<h2>Create Products</h2>
+
+<form action="/form-products" method="post" id="myForm">
+
+    Titttle: <input type="text" name="title">
+    <br><br>
+    Description: <input type="text" name="description">
+    <br><br>
+    Price: <input type="number" name="price">
+    <br><br>
+    Thumbnail: <input type="text" name="thumbnail">
+    <br><br>
+    Code: <input type="text" name="code">
+    <br><br>
+    Stock: <input type="text" name="stock">
+    <br><br>
+    Category: <input type="text" name="category">
+    <br><br>
+
+    <button type="submit">Crear</button>
+</form>
+<br>
+<a href="/products">Volver a productos</a>
+<br>
+<hr>
+<br>
+<h2>Products</h2>
+
+<table border="1" id="productTable">
+    <thead>
+        <td> ID </td>
+        <td> Title </td>
+        <td> Description </td>
+        <td> Price </td>
+        <td> Thumbnail </td>
+        <td> Code </td>
+        <td> Stock </td>
+        <td> Category </td>
+    </thead>
+    <tbody>
+        {{#each products}}
+        <tr>
+            <td> {{this.id}} </td>
+            <td> {{this.title}} </td>
+            <td> {{this.description}} </td>
+            <td> {{this.price}} </td>
+            <td> {{this.thumbnail}} </td>
+            <td> {{this.code}} </td>
+            <td> {{this.stock}} </td>
+            <td> {{this.category}} </td>
+        </tr>
+        {{/each}}
+    </tbody>
+
+</table>
+<br>
+<a href="/">Volver</a>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  socket.on("newProduct", (product) => {
+    const tableBody = document.querySelector("#productTable tbody");
+    const newRow = document.createElement("tr");
+    newRow.innerHTML = `
+      <td>${product.id}</td>
+      <td>${product.title}</td>
+      <td>${product.description}</td>
+      <td>${product.price}</td>
+      <td>${product.thumbnail}</td>
+      <td>${product.code}</td>
+      <td>${product.stock}</td>
+      <td>${product.category}</td>
+    `;
+    tableBody.appendChild(newRow);
+  });
+
+  document.getElementById("myForm").onsubmit = (e) => {
+    e.preventDefault();
+    const title = document.querySelector('input[name="title"]').value;
+    const description = document.querySelector('input[name="description"]').value;
+    const price = document.querySelector('input[name="price"]').value;
+    const thumbnail = document.querySelector('input[name="thumbnail"]').value;
+    const code = document.querySelector('input[name="code"]').value;
+    const stock = document.querySelector('input[name="stock"]').value;
+    const category = document.querySelector('input[name="category"]').value;
+
+    socket.emit("addProduct", {
+      title,
+      description,
+      price,
+      thumbnail,
+      code,
+      stock,
+      category,
+    });
+
+    document.getElementById("myForm").reset();
+  };
+</script>

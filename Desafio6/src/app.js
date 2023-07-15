@@ -1,19 +1,55 @@
 import Express from "express";
+import { Server } from "socket.io";
 import cartRouter from "./router/cartRouter.js";
-import productRouter from "./router/productRouter.js"
+import productRouter from "./router/productRouter.js";
+import handlebars from "express-handlebars";
+import __dirname from "./utils.js";
+import viewsRouter from "./router/viewsRouter.js";
+import ProductManager from "./ProductManager.js";
 
 const app = Express();
-app.use(Express.json())
+app.use(Express.json());
+app.use(Express.urlencoded({ extended: true }));
 
-app.get('/h', (req, res) => {
+app.engine("handlebars", handlebars.engine());
+app.set("views", __dirname + "/views");
+app.set("view engine", "handlebars");
+
+app.use("/", viewsRouter);
+app.get("/h", (req, res) => {
   res.send(`<h1>Esta es la página principal</h1>`);
 });
 
-app.use('/api/products', productRouter);
+app.use("/api/products", productRouter);
+app.use("/api/carts", cartRouter);
 
-app.use('/api/carts', cartRouter);
+const httpsServer = app.listen(8080);
+const io = new Server(httpsServer);
 
-app.listen(8080);
+const productManager = new ProductManager(
+  'C:/Users/Joaquin Puente/Desktop/backend/Desafio6/src/product.json',
+  io
+);
+
+io.on("connection", (socket) => {
+  console.log("New client connected");
+
+  socket.on("addProduct", (product) => {
+    productManager.addProducts(
+      product.title,
+      product.description,
+      product.price,
+      product.thumbnail,
+      product.code,
+      product.stock,
+      product.category
+    );
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});
 
 //RUTAS PARA POSTMAN
 

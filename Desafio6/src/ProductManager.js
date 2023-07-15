@@ -2,37 +2,41 @@ import fs from 'fs';
 
 class ProductManager {
  
-    constructor (filename) {
-        this.filename = filename;
-        this.format = 'utf-8';
-        this.ultID = 0;
-        this.path = './product.json'
-    }
+  constructor(filename, io) {
+    this.filename = filename;
+    this.format = 'utf-8';
+    this.ultID = 0;
+    this.path = './product.json';
+    this.io = io;
+  }
 
-    createID () {
-        this.ultID++;
-        return this.ultID;
-    }
+  createID() {
+    this.ultID++;
+    return this.ultID;
+  }
 
-    addProducts = async (title, description, price, thumbnail, code, stock,category) => {
-        const list = await this.getProducts();
-        const productID = list.length > 0 ? list[list.length - 1].id + 1 : 1;
-    
-        const newProduct = {
-            id: productID,
-            title: title,
-            description: description,
-            price: price,
-            thumbnail: thumbnail,
-            code: code,
-            stock: stock,
-            status: true,
-            category: category
-        };
-    
-        list.push(newProduct);
-        await fs.promises.writeFile(this.filename, JSON.stringify(list));
+    addProducts = async (title, description, price, thumbnail, code, stock, category) => {
+      const list = await this.getProducts();
+      const productID = list.length > 0 ? list[list.length - 1].id + 1 : 1;
+  
+      const newProduct = {
+        id: productID,
+        title: title,
+        description: description,
+        price: price,
+        thumbnail: thumbnail,
+        code: code,
+        stock: stock,
+        status: true,
+        category: category,
+      };
+  
+      list.push(newProduct);
+      await fs.promises.writeFile(this.filename, JSON.stringify(list));
+  
+      this.io.emit("newProduct", newProduct);
     };
+  
 
 
     
