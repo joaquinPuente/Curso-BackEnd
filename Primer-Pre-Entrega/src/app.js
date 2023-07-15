@@ -1,43 +1,34 @@
-const express = require('express');
-const { ProductManager } = require('./ProductManager');
+import Express from "express";
+import cartRouter from "./router/cartRouter.js";
+import productRouter from "./router/productRouter.js"
 
-const app = express();
-const productManager = new ProductManager('./product.json');
-const port = 8080;
+const app = Express();
+app.use(Express.json())
 
-app.get('/products', async (req, res) => {
-  try {
-    const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
-    const products = await productManager.getProducts();
-
-    if (limit) {
-      res.json(products.slice(0, limit));
-    } else {
-      res.json(products);
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+app.get('/h', (req, res) => {
+  res.send(`<h1>Esta es la página principal</h1>`);
 });
 
-app.get('/products/:id', async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const product = await productManager.getProductsByID(id);
+app.use('/api/products', productRouter);
 
-    if (product) {
-      res.json(product);
-    } else {
-      res.status(404).json({ error: 'Product not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+app.use('/api/carts', cartRouter);
 
-app.listen(port, () => console.log(`Servidor en puerto ${port}`));
+app.listen(8080);
 
-//127.0.0.1:8080/products
-//127.0.0.1:8080/products?limit=5
-//127.0.0.1:8080/products/3
-//127.0.0.1:8080/products/3522
+//RUTAS PARA POSTMAN
+
+//PRODUCTS
+
+//127.0.0.1:8080/api/products (GET)
+//127.0.0.1:8080/api/products/3 (GET FOR ID)
+//127.0.0.1:8080/api/products/  (POST: {"title": "Prueba3Post","description": "Descripción del nuevo producto","price": 1000,"thumbnail": "ruta/imagen.jpg","code": "ABC100","stock": 10,"category":"urbanas"} )
+//127.0.0.1:8080/api/products/delete/13 (DELETE FOR ID)
+//127.0.0.1:8080/products/put/12 (PUT FOR ID: {"title": "Prueba2Put","description": "Descripción del nuevo producto","price": 1000,"thumbnail": "ruta/imagen.jpg","code": "ABC100","stock": 10,"category":"urbanas"} )
+
+//CARTS
+
+//127.0.0.1:8080/api/carts/ (POST)
+//127.0.0.1:8080/api/carts/2 (GET)
+//127.0.0.1:8080/api/carts/2/product/3 (POST)
+
+

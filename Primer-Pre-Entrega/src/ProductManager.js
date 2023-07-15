@@ -1,5 +1,4 @@
-// Segundo desafio entregable
-const fs = require('fs')
+import fs from 'fs';
 
 class ProductManager {
  
@@ -15,14 +14,24 @@ class ProductManager {
         return this.ultID;
     }
 
-    addProducts = async (title, description, price, thumbnail, code, stock) => {
-        const productID = this.createID();
-        const product = { id:productID ,title, description, price, thumbnail, code, stock}
-        const list = await this.getProducts(); //se obtiene la lista de productos
-
-        list.push(product); //se pushea el nuevo usuario a la lista de productos
-
-        await fs.promises.writeFile(this.filename, JSON.stringify(list)); //se escribe o sobreescribe el archivo existente
+    addProducts = async (title, description, price, thumbnail, code, stock,category) => {
+        const list = await this.getProducts();
+        const productID = list.length > 0 ? list[list.length - 1].id + 1 : 1;
+    
+        const newProduct = {
+            id: productID,
+            title: title,
+            description: description,
+            price: price,
+            thumbnail: thumbnail,
+            code: code,
+            stock: stock,
+            status: true,
+            category: category
+        };
+    
+        list.push(newProduct);
+        await fs.promises.writeFile(this.filename, JSON.stringify(list));
     };
 
 
@@ -62,7 +71,7 @@ class ProductManager {
       };
       
 
-    updateProduct = async (id, title, description, price, thumbnail, code, stock ) => {
+    updateProduct = async (id, title, description, price, thumbnail, code, stock,category ) => {
         try {
             const products = await this.getProducts();
     
@@ -71,7 +80,7 @@ class ProductManager {
     
             if (index !== -1) {
                 // Actualizar las propiedades del producto
-                products[index] = {...products[index],...{title, description, price, thumbnail, code, stock}};
+                products[index] = {...products[index],...{title, description, price, thumbnail, code, stock,category}};
     
                 // Guardar la lista de productos actualizada en el archivo
                 await fs.promises.writeFile(this.filename, JSON.stringify(products));
@@ -88,25 +97,31 @@ class ProductManager {
 
     deleteProductByID = async (id) => {
         try {
-            const products = await this.getProducts();
-    
-            // Buscar el producto por su ID
-            const index = products.findIndex(product => product.id === id);
-    
-            if (index !== -1) {
-                // Eliminar el producto de la lista
-                products.splice(index, 1);
-    
-                // Guardar la lista de productos actualizada en el archivo
-                await fs.promises.writeFile(this.filename, JSON.stringify(products));
-                console.log(`Producto con ${id} fue eliminado exitosamente.`);
-            } else {
-                console.log('ID de producto no encontrado.');
-            }
+          let products = await this.getProducts();
+      
+          // Buscar el índice del producto con el ID dado en la lista de productos
+          const index = products.findIndex(product => product.id === id);
+      
+          if (index !== -1) {
+            // Eliminar el producto de la lista
+            products.splice(index, 1);
+      
+            // Guardar la lista de productos actualizada en el archivo
+            await fs.promises.writeFile(this.filename, JSON.stringify(products));
+      
+            console.log(`Producto con ID ${id} eliminado exitosamente.`);
+      
+            return true;
+          } else {
+            console.log(`Producto con ID ${id} no encontrado.`);
+            return false;
+          }
         } catch (err) {
-            console.log(`Error: ${err}`);
+          console.log(`Error: ${err}`);
+          return false;
         }
     };
 
 }
-module.exports = { ProductManager };
+
+export default ProductManager
