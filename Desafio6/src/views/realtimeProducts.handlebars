@@ -24,6 +24,16 @@
 <br>
 <hr>
 <br>
+
+<h3>Ingrese id de producto a eliminar</h3>
+<form id="deleteForm">
+    Id: <input type="number" id="productId" name="id">
+    <button type="submit">Eliminar</button>
+</form>
+
+<br>
+<hr>
+<br>
 <h2>Products</h2>
 
 <table border="1" id="productTable">
@@ -39,7 +49,7 @@
     </thead>
     <tbody>
         {{#each products}}
-        <tr>
+        <tr data-product-id="{{this.id}}">
             <td> {{this.id}} </td>
             <td> {{this.title}} </td>
             <td> {{this.description}} </td>
@@ -55,6 +65,7 @@
 </table>
 <br>
 <a href="/">Volver</a>
+
 
 
 <script src="/socket.io/socket.io.js"></script>
@@ -98,4 +109,21 @@
 
     document.getElementById("myForm").reset();
   };
+
+  document.getElementById("deleteForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const productId = document.getElementById("productId").value;
+    console.log('el productidformulario es: ',productId)
+    socket.emit("deleteProduct", productId);
+  });
+
+  socket.on("productDeleted", (productId) => {
+    const tableBody = document.querySelector("#productTable tbody");
+    const rows = tableBody.querySelectorAll("tr");
+    rows.forEach((row) => {
+      if (row.getAttribute("data-product-id") === productId) {
+        row.remove();
+      }
+    });
+  });
 </script>

@@ -2,7 +2,7 @@ import fs from 'fs';
 
 class ProductManager {
  
-  constructor(filename, io) {
+    constructor(filename, io) {
     this.filename = filename;
     this.format = 'utf-8';
     this.ultID = 0;
@@ -36,7 +36,7 @@ class ProductManager {
   
       this.io.emit("newProduct", newProduct);
     };
-  
+  s
 
 
     

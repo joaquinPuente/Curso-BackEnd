@@ -24,11 +24,10 @@ router.post('/form-products', async (req,res)=>{
     res.redirect('/products')
 });
 
-router.get('/realtimeProducts', async (req,res)=>{
-    const products = await productManager.getProducts()
-    res.render('realtimeProducts', {products})
-})
-
-
+router.get('/realtime-products', async (req, res) => {
+    const products = await productManager.getProducts();
+    res.render('realtimeProducts', { products });
+});
+  
 
 export default router

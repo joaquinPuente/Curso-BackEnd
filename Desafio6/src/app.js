@@ -1,5 +1,6 @@
 import Express from "express";
 import { Server } from "socket.io";
+import { createServer } from "http";
 import cartRouter from "./router/cartRouter.js";
 import productRouter from "./router/productRouter.js";
 import handlebars from "express-handlebars";
@@ -23,8 +24,13 @@ app.get("/h", (req, res) => {
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
 
-const httpsServer = app.listen(8080);
-const io = new Server(httpsServer);
+const server = createServer(app);
+const io = new Server(server);
+const PORT = 8080;
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
+
 
 const productManager = new ProductManager(
   'C:/Users/Joaquin Puente/Desktop/backend/Desafio6/src/product.json',
@@ -48,6 +54,13 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
+  });
+
+  socket.on("deleteProduct", (productId) => {
+    const ID = productId
+    console.log('el ID del socket on es: ',ID)
+    productManager.deleteProductByID(ID);
+    io.emit("productDeleted", productId);
   });
 });
 
